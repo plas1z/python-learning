@@ -31,8 +31,21 @@ while vibor != "0":
     elif vibor == "2":
         for row in cur.execute("SELECT * FROM expenses"):
             print(f"{row[0]}. {row[1]} — {row[2]:.2f} ₽")
+    elif vibor == "3":
+        cur.execute("SELECT COUNT(*) FROM expenses")
+        row = cur.fetchone()
+        skolko = row[0]
+        if skolko == 0:
+            print("Нет данных")
+        else:
+            cur.execute("SELECT SUM(amount) FROM expenses")
+            row1 = cur.fetchone()
+            cur.execute("SELECT MAX(amount) FROM expenses")
+            row2 = cur.fetchone()
+            print(f"Всего трат: {row[0]}")
+            print(f"Сумма: {row1[0]:.2f} ₽")
+            print(f"Самая крупная: {row2[0]:.2f} ₽")
     else:
         print("Нет такого пункта")
     vibor = input("Пункт (1-трата, 2-все, 0-выход): ")
 print("Пока")
-
