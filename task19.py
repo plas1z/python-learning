@@ -1,11 +1,30 @@
 from fastapi import FastAPI
 app = FastAPI()
 from fastapi.responses import HTMLResponse
-
+from fastapi.responses import RedirectResponse
+import requests
 import sqlite3
 
 conn = sqlite3.connect("kursy.db", check_same_thread=False)
 cur = conn.cursor()
+spisok = ["USD", "EUR", "CNY"]
+
+
+@app.post("/register")
+def reg(dannye: dict):
+    email = dannye["email"]
+
+@app.post("/snimok")
+def snimok():
+    otvet = requests.get("https://www.cbr-xml-daily.ru/daily_json.js")
+    slovar = otvet.json()
+    for kod in spisok:
+        name = slovar["Valute"][kod]["Name"]
+        kurs = slovar["Valute"][kod]["Value"]
+        cur.execute("INSERT INTO kursy (kod, name, kurs) VALUES (?, ?, ?)", (kod, name, kurs))
+        conn.commit()
+        print(f"{kod} ({name}) - записал")
+    return RedirectResponse("/stranica", status_code=302)
 
 
 @app.get("/")
@@ -99,6 +118,10 @@ def func3():
             <tr class="shapka"><td>Код</td><td>Имя</td><td>Курс</td></tr>
             {stroki}
         </table>
+        <form action="/snimok" method="post">
+        <p>
+            <button>Сделать снимок</button>
+        </form>        
         <p>Факты</p>
         <ul>
             <li>Доллар стабилен</li>
