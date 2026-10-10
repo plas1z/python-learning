@@ -1,6 +1,10 @@
 import sqlite3
+import time
 from fastapi import FastAPI
 app = FastAPI()
+jurnal = []
+from fastapi.responses import JSONResponse
+code429 = JSONResponse(status_code=429, content={"otvet": "slishkom chasto, podozhdi"})
 
 
 conn = sqlite3.connect("users.db", check_same_thread=False)
@@ -11,8 +15,22 @@ conn.commit()
 
 @app.post("/register")
 def reg(dannye: dict):
+    global jurnal
     email = dannye["email"]
     passwrd = dannye["passwrd"]
+    now = time.time()
+    new = []
+    for otmetka in jurnal:
+        if now - otmetka < 10:
+            new.append(otmetka)
+    jurnal = new
+        
+
+    if len(jurnal) >= 3:
+        return(code429)
+
+    jurnal.append(now)
+
 
     cur.execute("INSERT INTO users (email, passwrd) VALUES (?, ?)", (email, passwrd))
     conn.commit()
