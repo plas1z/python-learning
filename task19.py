@@ -10,9 +10,7 @@ cur = conn.cursor()
 spisok = ["USD", "EUR", "CNY"]
 
 
-@app.post("/register")
-def reg(dannye: dict):
-    email = dannye["email"]
+
 
 @app.post("/snimok")
 def snimok():
